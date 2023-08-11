@@ -20,7 +20,7 @@ defmodule Luminous.Dashboards.DemoDashboardLive do
         "Demo Dashboard",
         {&Routes.demo_dashboard_path/3, :index},
         panels: [
-          Panel.define(
+          Panel.Chart.define(
             :simple_time_series,
             "Simple Time Series",
             :chart,
@@ -35,14 +35,14 @@ defmodule Luminous.Dashboards.DemoDashboardLive do
             billing period
             """
           ),
-          Panel.define(
+          Panel.Table.define(
             :tabular_data,
             "Tabular Data",
             :table,
             [Query.define(:tabular_data, Queries)],
             description: "This is a panel with tabular data"
           ),
-          Panel.define(
+          Panel.Stat.define(
             :single_stat,
             "Single-stat panel",
             :stat,
@@ -57,7 +57,7 @@ defmodule Luminous.Dashboards.DemoDashboardLive do
               Query.define(:more_stats, Queries)
             ]
           ),
-          Panel.define(
+          Panel.Chart.define(
             :multiple_time_series,
             "Multiple Time Series with Ordering",
             :chart,
@@ -65,7 +65,7 @@ defmodule Luminous.Dashboards.DemoDashboardLive do
             unit: "μCKR",
             ylabel: "Description"
           ),
-          Panel.define(
+          Panel.Map.define(
             :europe_map,
             "Europe Map",
             :map,
@@ -73,7 +73,7 @@ defmodule Luminous.Dashboards.DemoDashboardLive do
             description: "This is a panel with the map of Europe",
             map: File.read!(Path.expand("../assets/topojson/europe.topo.json", __DIR__))
           ),
-          Panel.define(
+          Panel.Chart.define(
             :multiple_time_series_with_stacking,
             "Multiple Time Series with Stacking",
             :chart,
@@ -335,7 +335,12 @@ defmodule Luminous.Dashboards.DemoDashboardLive do
             lat: 44.4268,
             lon: 26.1025,
             description: "<b>Bucharest </b><br>The capital of Romania",
-            marker: %{symbol: "url(https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Flag_of_Romania.svg/1200px-Flag_of_Romania.svg.png)", width: 28, height: 20},
+            marker: %{
+              symbol:
+                "url(https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Flag_of_Romania.svg/1200px-Flag_of_Romania.svg.png)",
+              width: 28,
+              height: 20
+            },
             url: "https://en.wikipedia.org/wiki/Bucharest"
           }
         ]

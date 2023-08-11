@@ -11,6 +11,7 @@ defmodule Luminous.Panel do
   transform a query result to view data acc. to the panel type
   """
   @callback transform(Query.Result.t()) :: any()
+  @callback define(atom(), binary(), [Query.t()], Keyword.t()) :: any()
 
   @panel_modules %{
     chart: Chart,
@@ -19,73 +20,68 @@ defmodule Luminous.Panel do
     map: Map
   }
 
-  @type panel_type :: :chart | :stat | :table | :map
-  defguard is_panel(type) when type in [:chart, :stat, :table, :map]
+  # @type panel_type :: :chart | :stat | :table | :map
+  # defguard is_panel(type) when type in [:chart, :stat, :table, :map]
 
-  @type t :: %__MODULE__{
-          id: atom(),
-          title: binary(),
-          description: binary(),
-          type: panel_type(),
-          queries: [Query.t()],
-          unit: binary(),
-          ylabel: binary(),
-          xlabel: binary(),
-          stacked_x: boolean(),
-          stacked_y: boolean(),
-          hook: binary(),
-          y_min_value: number(),
-          y_max_value: number(),
-          map: binary()
-        }
+  # @type t :: %__MODULE__{
+  #         id: atom(),
+  #         title: binary(),
+  #         description: binary(),
+  #         type: panel_type(),
+  #         queries: [Query.t()],
+  #         unit: binary(),
+  #         ylabel: binary(),
+  #         xlabel: binary(),
+  #         stacked_x: boolean(),
+  #         stacked_y: boolean(),
+  #         hook: binary(),
+  #         y_min_value: number(),
+  #         y_max_value: number(),
+  #         map: binary()
+  #       }
 
-  @enforce_keys [:id, :title, :type, :queries, :hook]
-  defstruct [
-    :id,
-    :title,
-    :description,
-    :type,
-    :queries,
-    :unit,
-    :hook,
-    :ylabel,
-    :xlabel,
-    :stacked_x,
-    :stacked_y,
-    :y_min_value,
-    :y_max_value,
-    :map
-  ]
+  # @enforce_keys [:id, :title, :type, :queries, :hook]
+  # defstruct [
+  #   :id,
+  #   :title,
+  #   :description,
+  #   :type,
+  #   :queries,
+  #   :unit,
+  #   :hook,
+  #   :ylabel,
+  #   :xlabel,
+  #   :stacked_x,
+  #   :stacked_y,
+  #   :y_min_value,
+  #   :y_max_value,
+  #   :map
+  # ]
 
-  @doc """
-  Initialize a panel at compile time.
-  """
-  @spec define(atom(), binary(), panel_type(), [Query.t()], Keyword.t()) :: t()
-  def define(id, title, type, queries, opts \\ []) when is_panel(type) do
-    if type == :map and length(queries) > 1, do: raise "Map type only supports one query"
-    %__MODULE__{
-      id: id,
-      title: title,
-      type: type,
-      queries: queries,
-      unit: Keyword.get(opts, :unit, ""),
-      description: Keyword.get(opts, :description),
-      hook: Keyword.get(opts, :hook, default_panel_type(type)),
-      ylabel: Keyword.get(opts, :ylabel),
-      xlabel: Keyword.get(opts, :xlabel),
-      stacked_x:
-        if(Keyword.has_key?(opts, :stacked_x), do: Keyword.get(opts, :stacked_x), else: false),
-      stacked_y:
-        if(Keyword.has_key?(opts, :stacked_y), do: Keyword.get(opts, :stacked_y), else: false),
-      y_min_value: Keyword.get(opts, :y_min_value),
-      y_max_value: Keyword.get(opts, :y_max_value),
-      map: Keyword.get(opts, :map)
-    }
-  end
+  # @spec define(atom(), binary(), panel_type(), [Query.t()], Keyword.t()) :: t()
+  # def define(id, title, type, queries, opts \\ []) when is_panel(type) do
+  #   if type == :map and length(queries) > 1, do: raise("Map type only supports one query")
 
-  @doc """
-  Refresh all panel queries.
-  """
+  #   %__MODULE__{
+  #     id: id,
+  #     title: title,
+  #     type: type,
+  #     queries: queries,
+  #     unit: Keyword.get(opts, :unit, ""),
+  #     description: Keyword.get(opts, :description),
+  #     hook: Keyword.get(opts, :hook, default_panel_type(type)),
+  #     ylabel: Keyword.get(opts, :ylabel),
+  #     xlabel: Keyword.get(opts, :xlabel),
+  #     stacked_x:
+  #       if(Keyword.has_key?(opts, :stacked_x), do: Keyword.get(opts, :stacked_x), else: false),
+  #     stacked_y:
+  #       if(Keyword.has_key?(opts, :stacked_y), do: Keyword.get(opts, :stacked_y), else: false),
+  #     y_min_value: Keyword.get(opts, :y_min_value),
+  #     y_max_value: Keyword.get(opts, :y_max_value),
+  #     map: Keyword.get(opts, :map)
+  #   }
+  # end
+
   def refresh(panel, variables, time_range) do
     Enum.flat_map(panel.queries, fn query ->
       result = Query.execute(query, time_range, variables)
@@ -97,11 +93,6 @@ defmodule Luminous.Panel do
   @doc """
   Returns the DOM id of the given panel.
   """
-  @spec dom_id(t()) :: binary()
-  def dom_id(%__MODULE__{} = panel), do: "panel-#{panel.id}"
-
-  defp default_panel_type(:chart), do: "ChartJSHook"
-  defp default_panel_type(:table), do: "TableHook"
-  defp default_panel_type(:map), do: "MapHook"
-  defp default_panel_type(_), do: nil
+  @spec dom_id(any()) :: binary()
+  def dom_id(panel), do: "panel-#{panel.id}"
 end

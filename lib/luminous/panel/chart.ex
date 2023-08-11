@@ -1,7 +1,67 @@
 defmodule Luminous.Panel.Chart do
   alias Luminous.Query
-
   @behaviour Luminous.Panel
+
+  @type panel_type :: :chart
+
+  @type t :: %__MODULE__{
+          id: atom(),
+          title: binary(),
+          description: binary(),
+          type: panel_type(),
+          queries: [Query.t()],
+          unit: binary(),
+          ylabel: binary(),
+          xlabel: binary(),
+          stacked_x: boolean(),
+          stacked_y: boolean(),
+          hook: binary(),
+          y_min_value: number(),
+          y_max_value: number()
+        }
+
+  @enforce_keys [:id, :title, :queries, :hook]
+  defstruct [
+    :id,
+    :title,
+    :type,
+    :description,
+    :queries,
+    :unit,
+    :hook,
+    :ylabel,
+    :xlabel,
+    :stacked_x,
+    :stacked_y,
+    :y_min_value,
+    :y_max_value
+  ]
+
+  @doc """
+  Initialize a panel at compile time.
+  """
+  @impl true
+  @spec define(atom(), binary(), panel_type(), [Query.t()], Keyword.t()) :: t()
+  def define(id, title, type, queries, opts \\ []) do
+    %__MODULE__{
+      id: id,
+      title: title,
+      type: type,
+      queries: queries,
+      unit: Keyword.get(opts, :unit, ""),
+      description: Keyword.get(opts, :description),
+      hook: Keyword.get(opts, :hook, "ChartJSHook"),
+      ylabel: Keyword.get(opts, :ylabel),
+      xlabel: Keyword.get(opts, :xlabel),
+      stacked_x:
+        if(Keyword.has_key?(opts, :stacked_x), do: Keyword.get(opts, :stacked_x), else: false),
+      stacked_y:
+        if(Keyword.has_key?(opts, :stacked_y), do: Keyword.get(opts, :stacked_y), else: false),
+      y_min_value: Keyword.get(opts, :y_min_value),
+      y_max_value: Keyword.get(opts, :y_max_value)
+    }
+  end
+
   @impl true
   def transform(%Query.Result{rows: rows, attrs: attrs}) when is_list(rows) do
     # first, let's see if there's a specified ordering in var attrs

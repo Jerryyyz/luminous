@@ -132,7 +132,7 @@ defmodule Luminous.Live do
       end
 
       @impl true
-      def handle_info({_task_ref, {%Panel{type: :chart} = panel, datasets}}, socket) do
+      def handle_info({_task_ref, {%Panel.Chart{type: :chart} = panel, datasets}}, socket) do
         panel_data = %{
           datasets: datasets,
           ylabel: panel.ylabel,
@@ -153,7 +153,7 @@ defmodule Luminous.Live do
         {:noreply, socket}
       end
 
-      def handle_info({_task_ref, {%Panel{type: :stat} = panel, dataset}}, socket) do
+      def handle_info({_task_ref, {%Panel.Stat{type: :stat} = panel, dataset}}, socket) do
         socket =
           socket
           |> assign(panel_data: Map.put(socket.assigns.panel_data, panel.id, dataset))
@@ -164,7 +164,7 @@ defmodule Luminous.Live do
 
       # a table can have only one dataset
       def handle_info(
-            {_task_ref, {%Panel{type: :table} = panel, datasets}},
+            {_task_ref, {%Panel.Table{type: :table} = panel, datasets}},
             socket
           ) do
         socket =
@@ -176,7 +176,8 @@ defmodule Luminous.Live do
       end
 
       # a table can have only one dataset
-      def handle_info({_task_ref, {%Panel{type: :map} = panel, datasets}},
+      def handle_info(
+            {_task_ref, {%Panel.Map{type: :map} = panel, datasets}},
             socket
           ) do
         socket =
